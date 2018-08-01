@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "fs-extra": "^7.0.0",
     "jscs": "^3.0.7",
     "nightmare": "^3.0.1",
     "nightmare-upload": "^0.1.1"
