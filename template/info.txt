@@ -4,6 +4,32 @@ $50
 Example - An example title.
 {{CATEGORY}}
 Antiques & Collectibles
+Appliances
+Arts & Crafts
+Auto Parts
+Baby & Kids
+Bags & Luggage
+Bicycles
+Books, Movies & Music
+Cars, Trucks & Motorcycles
+Clothing & Shoes - Men
+Clothing & Shoes - Woman
+Electronics & Computers
+Garage Sale
+Garden
+Health & Beauty
+Household
+Jewelry & Accessories
+Miscellaneous
+Mobile Phones
+Musical Instruments
+Pet Supplies
+Property For Sale
+Property Rentals
+Sports & Outdoors
+Tools
+Toys & Games
+Video Games
 {{DESCRIPTION}}
 Example description. This is an example description. 
 

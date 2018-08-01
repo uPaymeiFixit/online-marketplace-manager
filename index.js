@@ -1,8 +1,9 @@
 const Nightmare = require('nightmare');
 require('nightmare-upload')(Nightmare);
-const nightmare = Nightmare({show: true, width: 1100, height: 768});
+const nightmare = Nightmare({show: true, width: 1100, height: 768, typeInterval: 10});
 const fs_extra = require('fs-extra');
 const path = require('path');
+const {exec} = require('child_process');
 
 init();
 
@@ -61,42 +62,29 @@ async function postItems (USERNAME, PASSWORD, info, images) {
     .click('#u_0_2') // "Login"
 
     // Navigate to marketplace
-    .wait(1000) // For some reason if we goto too quickly, we won't be logged in
+    .wait(3000) // For some reason if we goto too quickly, we won't be logged in
     .goto('https://facebook.com/marketplace/?ref=bookmark')
 
     // Create listing
     .wait('button._54qk._43ff._4jy0._4jy3._4jy1._51sy.selected._42ft')
     .click('button._54qk._43ff._4jy0._4jy3._4jy1._51sy.selected._42ft') // "+ Sell Something"
     .wait('div._4d0f._3-8_._4bl7') // "Item for Sale"
-    .click('div._4d0f._3-8_._4bl7') // "Item for Sale"
+    .click('div._4d0f._3-8_._4bl7') // "Item for Sale" 
 
-    // Fill out form data (Direct method)
-    .evaluate(info => {
-      document.querySelector('input[placeholder="Select a Category"]').value = 'Antiques & Collectibles'; // info.category;
-      document.querySelector('input[placeholder="What are you selling?"]').value = info.title;
-      document.querySelector('input[placeholder="Price"]').value = info.price;
+    // Fill out form data
+    .click('input[placeholder="Select a Category"]') // "Select a Category"
+    .then(() => {
+      // This is a super hacky method to select the category
+      exec(`cliclick t:'${info.category}' && cliclick kp:arrow-down && cliclick kp:return && exit`);
+    })
+    // .catch(error => console.error);
 
-      for (element of document.querySelectorAll('div[id^="placeholder-"]')) {
-        if (element.innerHTML == 'Describe your item (optional)') {
-          element.innerHTML = info.description;
-          return;
-        }
-      }
-    }, info)  
-
-    // // Fill out form data (Nightmare method)
-    // // Setting the category this way doesn't work
-    // .type('input[placeholder="Select a Category"]', info.category) // "Select a Category"
-    // .insert('input[placeholder="What are you selling?"]', info.title) // "What are you selling?"
-    // .insert('input[placeholder="Price"]', info.price) // "Price"
-    // .click('div[data-testid="status-attachment-mentions-input"]') // "Describe your item (optional)"
-    // .insert('body', info.description)
+  await nightmare
+    .wait(1000)
+    .insert('input[placeholder="What are you selling?"]', info.title) // "What are you selling?"
+    .insert('input[placeholder="Price"]', info.price) // "Price"
+    .click('div[data-testid="status-attachment-mentions-input"]') // "Describe your item (optional)"
+    .type('body', info.description)
     .upload('input[accept="image/*"]', images)
-
-    // .end()
-    .then(console.log)
-    .catch(error => {
-      console.error('Search failed:', error)
-    });
-
+    .catch(error => console.error);
 }
