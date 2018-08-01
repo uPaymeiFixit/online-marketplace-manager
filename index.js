@@ -72,6 +72,7 @@ async function postItems (USERNAME, PASSWORD, info, images) {
     .click('div._4d0f._3-8_._4bl7') // "Item for Sale" 
 
     // Fill out form data
+    .upload('input[accept="image/*"]', images)
     .click('input[placeholder="Select a Category"]') // "Select a Category"
     .then(() => {
       // This is a super hacky method to select the category
@@ -80,11 +81,12 @@ async function postItems (USERNAME, PASSWORD, info, images) {
     // .catch(error => console.error);
 
   await nightmare
-    .wait(1000)
+    .wait(3000)
     .insert('input[placeholder="What are you selling?"]', info.title) // "What are you selling?"
     .insert('input[placeholder="Price"]', info.price) // "Price"
     .click('div[data-testid="status-attachment-mentions-input"]') // "Describe your item (optional)"
     .type('body', info.description)
-    .upload('input[accept="image/*"]', images)
+    .wait('button._1mf7._4jy0._4jy3._4jy1._51sy.selected._42ft')
+    .click('button._1mf7._4jy0._4jy3._4jy1._51sy.selected._42ft')
     .catch(error => console.error);
 }
