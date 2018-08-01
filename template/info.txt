@@ -2,6 +2,8 @@
 $50
 {{TITLE}}
 Example - An example title.
+{{CATEGORY}}
+Antiques & Collectibles
 {{DESCRIPTION}}
 Example description. This is an example description. 
 
