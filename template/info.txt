@@ -1,0 +1,11 @@
+{{PRICE}}
+$50
+{{TITLE}}
+Example - An example title.
+{{DESCRIPTION}}
+Example description. This is an example description. 
+
+This is the second line of the example description.
+
+{{TAGS}}
+example tags upaymeifixit

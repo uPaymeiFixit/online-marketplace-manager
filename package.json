@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "jscs": "^3.0.7",
+    "nightmare": "^3.0.1",
+    "nightmare-upload": "^0.1.1"
+  },
+  "name": "online-marketplace-manager",
+  "version": "0.0.1",
+  "description": "A CLI to post, delete, and manage listings on Craigslist, Letgo, Offerup, and Facebook Marketplace.",
+  "main": "index.js",
+  "repository": "https://github.com/uPaymeiFixit/online-marketplace-manager.git",
+  "author": "Josh Gibbs <upaymeifixit@gmail.com>",
+  "license": "MIT"
+}
