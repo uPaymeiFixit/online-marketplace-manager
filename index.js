@@ -1,6 +1,6 @@
 const Nightmare = require('nightmare');
 require('nightmare-upload')(Nightmare);
-const nightmare = Nightmare({show: true, width: 1100, height: 768, typeInterval: 10});
+const nightmare = Nightmare({show: true, width: 1080, height: 1080, typeInterval: 10});
 const fs_extra = require('fs-extra');
 const path = require('path');
 const {exec} = require('child_process');
@@ -56,7 +56,14 @@ async function getImages (path_to_images, item_folder) {
   const photos_path = `${path_to_images}/${item_folder}/Photos`;
   const images = await fs_extra.readdir(photos_path);
   for (i in images) {
-    if (images[i] == '.DS_Store') {
+    if (images[i] == '.DS_Store' || 
+        (!images[i].endsWith('.png') &&
+        !images[i].endsWith('.PNG') &&
+        !images[i].endsWith('.jpg') &&
+        !images[i].endsWith('.JPG') &&
+        !images[i].endsWith('.jpeg') &&
+        !images[i].endsWith('.JPEG'))
+    ) {
       images.splice(i, 1);
     }
     images[i] = `${photos_path}/${images[i]}`;
@@ -112,7 +119,7 @@ async function postItem (item, max_images) {
     write(`..`);
 
   await nightmare
-    .wait(3000)
+    .wait(4000)
     .insert('input[placeholder="What are you selling?"]', item.title) // "What are you selling?"
     .insert('input[placeholder="Price"]', item.price) // "Price"
     .click('div[data-testid="status-attachment-mentions-input"]') // "Describe your item (optional)"
