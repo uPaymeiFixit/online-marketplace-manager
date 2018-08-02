@@ -85,7 +85,7 @@ async function postItems (USERNAME, PASSWORD, info, images) {
     .insert('input[placeholder="What are you selling?"]', info.title) // "What are you selling?"
     .insert('input[placeholder="Price"]', info.price) // "Price"
     .click('div[data-testid="status-attachment-mentions-input"]') // "Describe your item (optional)"
-    .type('body', info.description)
+    .type('body', `${info.description}\n\nTAGS: ${info.tags}`)
     .wait('button._1mf7._4jy0._4jy3._4jy1._51sy.selected._42ft')
     .click('button._1mf7._4jy0._4jy3._4jy1._51sy.selected._42ft')
     .catch(error => console.error);
