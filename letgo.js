@@ -28,7 +28,7 @@ async function init () {
 
   const items = await parseSpreadsheet(path_to_tsv, path_to_images);
   await authenticate(fb_username, fb_password);
-  // await postItems(items, max_images);
+  await postItems(items, max_images);
   write(`PROCESS COMPLETE. EXITING (0)\n`);
 }
 
@@ -77,6 +77,34 @@ async function getImages (path_to_images, item_folder) {
   return images;
 }
 
+// authenticate using Facebook
+// async function authenticate (username, password) {
+//   write(`AUTHENTICATING ${username}..`);
+//   await nightmare
+
+//     // Authenticate
+//     .useragent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36')
+//     .goto('https://letgo.com/')
+//     .click('button[data-test="login"]') // "Log In"
+//     .wait(3000)
+//     .click('button[data-test="login-facebook"]')
+//     .wait(3000)
+//     .then(() => {
+//       // This is a super hacky method to log in using the popup
+//       exec(`cliclick t:${username} kp:tab t:${password} kp:enter`);
+//     })
+//     .catch(error => console.error);
+
+//   await nightmare
+//     // .insert('#email', username)
+//     // .insert('#pass', password)
+//     // .click('#loginbutton')
+//     .wait('div.avatar') // Wait for captcha to be completed by user
+//     .catch(error => console.error);
+//   write('.DONE!\n');
+// }
+
+// Authenticate using email and password
 async function authenticate (username, password) {
   write(`AUTHENTICATING ${username}..`);
   await nightmare
@@ -85,43 +113,17 @@ async function authenticate (username, password) {
     .useragent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36')
     .goto('https://letgo.com/')
     .click('button[data-test="login"]') // "Log In"
-    .wait(3000)
-    .click('button[data-test="login-facebook"]')
-    .wait(3000)
-    .then(() => {
-      // This is a super hacky method to log in using the popup
-      exec(`cliclick t:${username} kp:tab t:${password} kp:enter`);
-    })
-    .catch(error => console.error);
+    .click('button[data-test="login-email"]') // "Log In"
+    .insert('input[data-test="login-input-email"]', username)
+    .insert('input[data-test="login-input-password"]', password)
 
-  await nightmare
-    // .insert('#email', username)
-    // .insert('#pass', password)
-    // .click('#loginbutton')
+    .wait('button[data-test="login-email-submit"]') // "Log In"
+    .wait(3000)
+    .click('button[data-test="login-email-submit"]') // "Log In"
     .wait('div.avatar') // Wait for captcha to be completed by user
     .catch(error => console.error);
   write('.DONE!\n');
 }
-
-// async function authenticate (fb_username, fb_password) {
-//   write(`AUTHENTICATING ${fb_username}..`);
-//   await nightmare
-
-//     // Authenticate
-//     .useragent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36')
-//     .goto('https://letgo.com/')
-//     .click('button[data-test="login"]') // "Log In"
-//     .click('button[data-test="login-email"]') // "Log In"
-//     .insert('input[data-test="login-input-email"]', fb_username)
-//     .insert('input[data-test="login-input-password"]', fb_password)
-
-//     .wait('button[data-test="login-email-submit"]') // "Log In"
-//     .wait(3000)
-//     .click('button[data-test="login-email-submit"]') // "Log In"
-//     .wait('div.avatar') // Wait for captcha to be completed by user
-//     .catch(error => console.error);
-//   write('.DONE!\n');
-// }
 
 async function postItems (items, max_images) {
   write(`\nPOSTING ${items.length} ITEMS:\n`);
@@ -139,20 +141,36 @@ async function postItem (item, max_images) {
     // Create listing
     .click('button[data-test="sell-your-stuff-button"]') // "Sell Your Stuff"
     .upload('input[name="dropzone-input"]', item.images[0])
+    
+    .wait(3000) // "wait for animation to finish"
     .wait('input[name="price"]') // "Price"
-    .insert('input[name="price"]', item.price) // "Price"
+    
+    // .wait(2001)
     .click('button[data-test="confirm-sell-button"]')  // "Done"
-    .wait('div.full-height.flex.justify-center.items-center.flex-column > button.sc-iwsKbI.nsZz.sc-ifAKCX.goodrK') // "Add more details"
-    .click('div.full-height.flex.justify-center.items-center.flex-column > button.sc-iwsKbI.nsZz.sc-ifAKCX.goodrK') // "Add more details"
+
+    .wait(6000) // wait for publication to finish
+    .wait('div.full-height.flex.justify-center.items-center.flex-column > button') // "Add more details"
+    .click('div.full-height.flex.justify-center.items-center.flex-column > button') // "Add more details"
+    
+    .wait(5001) // wait for animation to finish
     .wait('input[name="dropzone-input"]')
     .upload('input[name="dropzone-input"]', item.images.splice(1, max_images))
-    .insert('input[name="name"]', item.title)
-    .insert('input[name="description"]', item.description)
-    .click('div.flex.items-center.my2 > button.sc-iwsKbI.duAuZS.sc-ifAKCX.goodrK') // "Submit"
+    
+    .wait(2000)
+    .type('input[name="name"]', item.title)
+    .type('textarea[name="description"]', `${item.description}\n\ntags: ${item.tags}`)
+    .type('input[name="price"]', item.price) // "Price"
+    
+    // .wait(500)
+    
+    .wait(2001)
+    .click('div.flex.items-center.my2 > button') // "Save changes"
+    
     .wait(() => {
       // Wait until the post window closes before opening a new one
       return document.getElementById('dialog') == null
     })
+    .wait(3000)
     .catch(error => console.error);
   write(`..DONE!\n`);
 }
