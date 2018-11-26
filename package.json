@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "await-exec": "^0.1.2",
     "dotenv": "^6.1.0",
     "jscs": "^3.0.7",
     "prompts": "^1.2.1"
