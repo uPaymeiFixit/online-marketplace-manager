@@ -1,9 +1,8 @@
 {
   "dependencies": {
-    "fs-extra": "^7.0.0",
+    "dotenv": "^6.1.0",
     "jscs": "^3.0.7",
-    "nightmare": "^3.0.1",
-    "nightmare-upload": "^0.1.1"
+    "prompts": "^1.2.1"
   },
   "name": "online-marketplace-manager",
   "version": "0.0.1",
