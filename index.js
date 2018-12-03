@@ -5,29 +5,84 @@ require('dotenv').config()
 init();
 
 async function init () {
-  // const json = `{"price":10, "title": "Indecor Bathroom Sink Set", "description": "Comes with soap dispenser, toothbrush holder, and misc jar for toothpaste or other toiletries", "tags": "home decor decorate bathroom brown ceramic set upaymeifixit"}`;
-  const json = await prompt('Enter JSON for sale item: ');
-  const item = JSON.parse(json);
-  item.description = item.description || 'Please contact for more details.';
-  listItem(item);
+  while (true) {
+    // const json = `{"price":10, "title": "Indecor Bathroom Sink Set", "description": "Comes with soap dispenser, toothbrush holder, and misc jar for toothpaste or other toiletries", "tags": "home decor decorate bathroom brown ceramic set upaymeifixit"}`;
+    const json = await prompt('Enter JSON for sale item: ');
+    const item = JSON.parse(json);
+
+    // include default item description if there is none
+    item.description = item.description || 'Please contact for more details.';
+    await listItem(item);
+  }
 }
 
 async function listItem (item) {
   // Bring Chrome to foreground
   write('Opening Google Chrome. Tab order should be Craigslist, Facebook Marketplace, Letgo\n');
-  await exec(`open -a Google\\ Chrome && exit`, execoutput);
+  await exec(`open -a Google\\ Chrome && sleep 1 && exit`, execoutput);
 
+  await craigslist(item);
+  await facebook(item);
+  await letgo(item);
+  setTimeout(alert, 500);
+  setTimeout(alert, 700);
+  setTimeout(alert, 900);
+  
+}
+
+function alert () {
+  write('\u0007');
+}
+
+async function craigslist (item) {
   write('Creating Craigslist Ad...');
-  await exec(`cliclick kd:cmd kp:num-1 ku:cmd kp:tab t:'${item.title}' kp:tab t:${item.price} kp:tab t:'${process.env.CL_SPECIFIC_LOCATION}' kp:tab t:'${process.env.CL_POSTAL_CODE}' kp:tab t:'${item.description}' kp:return,return t:'  tags: ${item.tags}' kp:tab,tab,tab,tab t:'${process.env.CL_PHONE_NUMBER}' kp:tab,tab t:'${process.env.CL_CONTACT_NAME}' kp:tab t:'${process.env.CL_STREET}' kp:tab t:'${process.env.CL_CROSS_STREET}' kp:tab t:'${process.env.CL_CITY}' kp:tab,space,tab,tab,tab,tab,tab,tab,arrow-down,arrow-down,arrow-down,tab,space,tab,space,tab,tab,tab,space,tab,space,return && sleep 3 && exit`, execoutput);
-  write('Done!\n');
+  // Switch to tab 1 (Craigslist)
+  await exec(`cliclick kd:cmd kp:num-1 ku:cmd && sleep 1 && exit`, execoutput);
+  // Input title, price, location, and zip
+  await exec(`cliclick kp:tab t:'${item.title}' kp:tab t:${item.price} kp:tab t:'${process.env.CL_SPECIFIC_LOCATION}' kp:tab t:'${process.env.CL_POSTAL_CODE}' kp:tab && exit`, execoutput);
+  // Input description with returns
+  await typeWithReturns(item.description); 
+  // Input tags
+  await exec(`cliclick kp:return,return t:'  tags: ${item.tags}' kp:tab,tab,tab,tab t:'${process.env.CL_PHONE_NUMBER}' kp:tab,tab t:'${process.env.CL_CONTACT_NAME}' kp:tab t:'${process.env.CL_STREET}' kp:tab t:'${process.env.CL_CROSS_STREET}' kp:tab t:'${process.env.CL_CITY}' kp:tab,space,tab,tab,tab,tab,tab,tab,arrow-down,arrow-down,arrow-down,tab,space,tab,space,tab,tab,tab,space,tab,space,return && sleep 3 && exit`, execoutput);
+  write('Done!\n\u0007');
+}
 
+async function facebook (item) {
   write('Creating Facebook Marketplace Ad...');
-  await exec(`cliclick kd:cmd kp:num-2 ku:cmd kp:tab,tab,tab,tab,tab t:'${item.title}' kp:tab t:'${item.price}' kp:tab,tab,tab t:'${item.description}' kp:return,return t:'  tags: ${item.tags}' && sleep 3 && exit`);
-  write('Done!\n');
+  // Switch to tab 2 (Facebook Marketplace)
+  await exec(`cliclick kd:cmd kp:num-2 ku:cmd && sleep 1 && exit`, execoutput);
+  // Input title and price
+  await exec(`cliclick kp:tab,tab,tab,tab,tab t:'${item.title}' kp:tab t:'${item.price}' kp:tab,tab,tab && exit`);
+  // Input description with returns
+  await typeWithReturns(item.description);
+  // Input tags
+  await exec(`cliclick kp:return,return t:'  tags: ${item.tags}' && sleep 3 && exit`, execoutput)
+  write('Done!\n\u0007');
+}
 
+async function letgo (item) {
   write('Creating Letgo Ad...');
-  await exec(`cliclick kd:cmd kp:num-3 ku:cmd kp:tab t:'${item.title}' kp:tab t:'${item.description}' kp:return,return t:'  tags: ${item.tags}' kp:tab t:'${item.price}' && sleep 3 && exit`);
-  write('Done!\n');
+  // Switch to tab 3 (Letgo)
+  await exec(`cliclick kd:cmd kp:num-3 ku:cmd && sleep 1 && exit`, execoutput);
+  // Input title
+  await exec(`cliclick kp:tab t:'${item.title}' kp:tab && exit`, execoutput);
+  // Input description with returns
+  await typeWithReturns(item.description);
+  // Input tags and price
+  await exec(`cliclick kp:return,return t:'  tags: ${item.tags}' kp:tab t:'${item.price}' && sleep 3 && exit`, execoutput);
+  write('Done!\n\u0007');
+}
+
+// Types the given parameter including \n characters
+async function typeWithReturns (text) {
+  text = text.split("\n");
+  for (t of text) {
+    if (t == "") {
+      await exec(`cliclick kp:return && exit`, execoutput);
+    } else {
+      await exec(`cliclick t:'${t}' kp:return && exit`, execoutput);
+    }
+  }
 }
 
 function execoutput (error, stdout, stderr) {
