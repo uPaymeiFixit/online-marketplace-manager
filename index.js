@@ -24,13 +24,13 @@ async function listItem (item) {
   await craigslist(item);
   await facebook(item);
   await letgo(item);
-  setTimeout(alert, 500);
-  setTimeout(alert, 700);
-  setTimeout(alert, 900);
+  setTimeout(ding, 500);
+  setTimeout(ding, 700);
+  setTimeout(ding, 900);
   
 }
 
-function alert () {
+function ding () {
   write('\u0007');
 }
 
@@ -51,8 +51,9 @@ async function facebook (item) {
   write('Creating Facebook Marketplace Ad...');
   // Switch to tab 2 (Facebook Marketplace)
   await exec(`cliclick kd:cmd kp:num-2 ku:cmd && sleep 1 && exit`, execoutput);
-  // Input title and price
-  await exec(`cliclick kp:tab,tab,tab,tab,tab t:'${item.title}' kp:tab t:'${item.price}' kp:tab,tab,tab && exit`);
+  // Input category, title, and price
+  // NOTE: if location isn't being automatically filled, add an extra tab at the end
+  await exec(`cliclick kp:tab,tab,tab t:'${item.category}' kp:arrow-down,return,tab,tab t:'${item.title}' kp:tab t:'${item.price}' kp:tab,tab && exit`);
   // Input description with returns
   await typeWithReturns(item.description);
   // Input tags
@@ -65,7 +66,7 @@ async function letgo (item) {
   // Switch to tab 3 (Letgo)
   await exec(`cliclick kd:cmd kp:num-3 ku:cmd && sleep 1 && exit`, execoutput);
   // Input title
-  await exec(`cliclick kp:tab t:'${item.title}' kp:tab && exit`, execoutput);
+  await exec(`cliclick kp:tab,tab t:'${item.title}' kp:tab && exit`, execoutput);
   // Input description with returns
   await typeWithReturns(item.description);
   // Input tags and price
@@ -80,7 +81,7 @@ async function typeWithReturns (text) {
     if (t == "") {
       await exec(`cliclick kp:return && exit`, execoutput);
     } else {
-      await exec(`cliclick t:'${t}' kp:return && exit`, execoutput);
+      await exec(`cliclick t:"${t}" kp:return && exit`, execoutput);
     }
   }
 }
